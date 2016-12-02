@@ -1,0 +1,49 @@
+{
+  "name": "@microjs/microjs-plugins-redis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Плагин Microjs для запросов в Redis",
+  "main": "index.js",
+  "author": "Konstantin Dark",
+  "scripts": {
+    "setup": "npm install --no-optional && npm run compile",
+    "watch": "npm run clean && npm run watch:babel & npm run watch:other",
+    "deploy": "npm run version:patch && git push --tags origin HEAD",
+    "compile": "npm run clean && npm run compile:babel && npm run compile:other && git add -A build",
+    "clean": "rimraf build/*",
+    "watch:babel": "babel -w ./src/ -d build/ --source-maps",
+    "watch:other": "cpx \"src/**/*.json\" build -w -v",
+    "compile:babel": "babel ./src/ -d build/ --source-maps",
+    "compile:other": "cpx \"src/**/*.json\" build",
+    "version:patch": "npm run compile && npm version patch",
+    "version:minor": "npm run compile && npm version minor",
+    "version:major": "npm run compile && npm version major",
+    "test": "mocha -R spec --timeout 5000 build/tests/**/*.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/macronomica/macronomica-library-microjs-plugins-redis.git"
+  },
+  "dependencies": {
+    "lodash.isfunction": "^3.0.8",
+    "lodash.isplainobject": "^4.0.6",
+    "redis": "^2.6.3"
+  },
+  "peerDependencies": {
+    "microjs": "git+ssh://git@github.com:macronomica/macronomica-library-microjs.git#1.x.x"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-eslint": "^7.0.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.9.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",
+    "babel-plugin-transform-es2015-parameters": "^6.18.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "chai": "^3.5.0",
+    "cpx": "^1.5.0",
+    "eslint": "^3.7.1",
+    "mocha": "^3.1.2",
+    "rimraf": "^2.5.4"
+  }
+}
