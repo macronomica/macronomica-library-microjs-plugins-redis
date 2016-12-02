@@ -27,10 +27,8 @@
   "dependencies": {
     "lodash.isfunction": "^3.0.8",
     "lodash.isplainobject": "^4.0.6",
-    "redis": "^2.6.3"
-  },
-  "peerDependencies": {
-    "microjs": "git+ssh://git@github.com:macronomica/macronomica-library-microjs.git#1.x.x"
+    "redis": "^2.6.3",
+    "@microjs/microjs": "git+ssh://git@github.com:macronomica/macronomica-library-microjs.git#1.x.x"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",

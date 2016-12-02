@@ -1,0 +1,46 @@
+'use strict';
+
+var _chai = require('chai');
+
+var _chai2 = _interopRequireDefault(_chai);
+
+var _microjs = require('@microjs/microjs');
+
+var _microjs2 = _interopRequireDefault(_microjs);
+
+var _constants = require('./constants');
+
+var _index = require('../index');
+
+var _index2 = _interopRequireDefault(_index);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const should = _chai2.default.should();
+
+describe('lifecicle', function () {
+
+  it('#connect', () => new Promise((resolve, reject) => {
+    const micro = (0, _microjs2.default)({
+      level: _microjs.LEVEL_ERROR,
+      plugins: [(0, _index2.default)(_constants.CONNECT_OPTIONS)]
+    });
+    let __client;
+
+    micro.on(_index.EVENTS_CONNECT, result => should.exist(__client = result));
+
+    return micro.run().then(() => micro.act(_index.PIN_CONNECTION)).then(client => should.equal(__client, client)).then(() => micro.end()).then(() => __client = null).then(resolve).catch(reject);
+  }));
+
+  it('#disconnect', () => new Promise((resolve, reject) => {
+    const micro = (0, _microjs2.default)({
+      level: _microjs.LEVEL_ERROR,
+      plugins: [(0, _index2.default)(_constants.CONNECT_OPTIONS)]
+    });
+
+    micro.on(_index.EVENTS_DISCONNECT, result => should.equal(null, result));
+
+    return micro.run().then(() => micro.end()).then(() => micro.act(_index.PIN_CONNECTION)).catch(error => should.equal(error, `Вызов не существующего маршрута: ${ JSON.stringify(_index.PIN_CONNECTION) }`)).then(resolve).catch(reject);
+  }));
+});
+//# sourceMappingURL=lifecicle.spec.js.map
