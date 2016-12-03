@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _constants = require('./../constants');
 
-exports.default = (app, plugin, client) => new Promise((resolve, reject) => {
+exports.default = (app, plugin) => new Promise((resolve, reject) => {
+  const client = plugin.client;
+
   if (!client || client.closing) {
     return resolve();
   }

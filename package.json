@@ -25,10 +25,10 @@
     "url": "https://github.com/macronomica/macronomica-library-microjs-plugins-redis.git"
   },
   "dependencies": {
+    "@microjs/microjs": "git+ssh://git@github.com:macronomica/macronomica-library-microjs.git#1.x.x",
     "lodash.isfunction": "^3.0.8",
     "lodash.isplainobject": "^4.0.6",
-    "redis": "^2.6.3",
-    "@microjs/microjs": "git+ssh://git@github.com:macronomica/macronomica-library-microjs.git#1.x.x"
+    "redis": "^2.6.3"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",

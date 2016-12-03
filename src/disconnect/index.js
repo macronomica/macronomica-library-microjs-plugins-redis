@@ -1,6 +1,8 @@
 import { EVENTS_DISCONNECT } from './../constants';
 
-export default (app, plugin, client) => new Promise((resolve, reject) => {
+export default (app, plugin) => new Promise((resolve, reject) => {
+  const client = plugin.client;
+  
   if (!client || client.closing) {
     return resolve();
   }

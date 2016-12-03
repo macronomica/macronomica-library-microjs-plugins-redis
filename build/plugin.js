@@ -18,6 +18,10 @@ var _disconnect = require('./disconnect');
 
 var _disconnect2 = _interopRequireDefault(_disconnect);
 
+var _modules = require('./modules');
+
+var _modules2 = _interopRequireDefault(_modules);
+
 var _pins = require('./pins');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -29,21 +33,22 @@ exports.default = function () {
   return (app, _ref) => {
     let onClose = _ref.onClose;
 
-    const plugin = { id: (0, _microjs.genid)(), middleware: _redis2.default };
-    let client = null;
+    const plugin = { id: (0, _microjs.genid)(), middleware: _redis2.default, client: null };
 
     app.add(_pins.PIN_PLUGIN, () => Promise.resolve(plugin));
     app.add(_pins.PIN_OPTIONS, () => Promise.resolve(settings));
-    app.add(_pins.PIN_CONNECTION, () => Promise.resolve(client));
+    app.add(_pins.PIN_CONNECTION, () => Promise.resolve(plugin.client));
+
+    (0, _modules2.default)(app, plugin, { onClose });
 
     onClose(() => {
       app.del(_pins.PIN_CONNECTION);
       app.del(_pins.PIN_OPTIONS);
       app.del(_pins.PIN_PLUGIN);
-      return (0, _disconnect2.default)(app, plugin, client).then(result => client = result);
+      return (0, _disconnect2.default)(app, plugin).then(result => plugin.client = result);
     });
 
-    return (0, _connect2.default)(app, plugin, settings).then(result => client = result);
+    return (0, _connect2.default)(app, plugin, settings).then(result => plugin.client = result);
   };
 };
 //# sourceMappingURL=plugin.js.map
