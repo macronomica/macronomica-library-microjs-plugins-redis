@@ -37,19 +37,15 @@ export default (app, plugin) => {
       
       // Получим текущие значения переданных тегов
       return app.act({ PIN_TAGS_GET, tags })
-        .then(tagsValues => new Promise((resolve, reject) => {
+        .then(tagsValues => {
           const hash = [
             'value', JSON.stringify(value),
             'tags', JSON.stringify(tagsValues)
           ];
     
-          plugin.client.hmset(key, ...hash, (err, res) => {
-            if (err) {
-              return reject(internalError(app, err, ERROR_INFO));
-            }
-      
-            resolve(value);
-          });
-        }));
+          return plugin.client
+            .hmset(key, ...hash)
+            .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
+        });
     };
 };
