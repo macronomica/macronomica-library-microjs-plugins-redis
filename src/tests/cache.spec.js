@@ -66,11 +66,7 @@ describe('cache', function() {
 
   it('#plugin.read + callback():Promise -> должен вернуть объект', () => micro
     .act({ ...PIN_CACHE_GET, key, setCb: () => Promise.resolve(DATA) })
-    .then(result => Promise.all([
-      console.log(result),
-      console.log(DATA),
-      should.equal(result, DATA)
-    ]))
+    .then(result => should.equal(result, DATA))
     .then(() => micro.act({ ...PIN_CACHE_GET, key }))
     .then(result => Promise.all([
       should.not.equal(null, result),
