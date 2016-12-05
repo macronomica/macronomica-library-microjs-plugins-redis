@@ -15,7 +15,7 @@ const ERROR_INFO = { module: MODULE_NAME, action: ACTION_NAME_SET };
  */
 export default (app, plugin) => {
   /**
-   * @param {Array<string>} tags  Список имен тегов для полуения их значений
+   * @param {Array<string>} tags  Список имен тегов для установки новых значений
    *
    * @returns {Promise<null|*|error>}
    */
@@ -27,18 +27,15 @@ export default (app, plugin) => {
     if (!tags.length) {
       return Promise.reject(tagsMustBeNotEmptyArrayError(ERROR_INFO));
     }
-    
-    return new Promise((resolve, reject) => {
+
+    try {
       const result = setDateNow(tags);
-      
-      client.hmset(TAGS_KEY, ...result.keys, function(err, res) {
-        if (err) {
-          return reject(internalError(app, err, ERROR_INFO));
-        }
-        
-        resolve(result.tags);
-      });
-    });
+      return plugin.client.hmset(TAGS_KEY, ...result.keys)
+        .then(() => result.tags)
+        .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
+    } catch (err) {
+      return Promise.reject(internalError(app, err, ERROR_INFO));
+    }
   };
 };
 

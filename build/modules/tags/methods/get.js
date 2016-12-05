@@ -52,23 +52,7 @@ exports.default = (app, plugin) => {
       return Promise.reject((0, _tagsMustBeNotEmptyArray2.default)(ERROR_INFO));
     }
 
-    return new Promise((resolve, reject) => {
-      const hasManyTags = tags.length;
-
-      plugin.client.hmget(_constants.TAGS_KEY, ...tags, callback);
-
-      function callback(err, result) {
-        if (err) {
-          return reject((0, _internalError2.default)(app, err, ERROR_INFO));
-        }
-
-        if (result === null || !hasManyTags) {
-          return resolve(result);
-        }
-
-        resolve((0, _getAll.reduced)(tags, result));
-      }
-    });
+    return plugin.client.hmget(_constants.TAGS_KEY, ...tags).then(result => result === null ? result : (0, _getAll.reduced)(tags, result)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
 //# sourceMappingURL=get.js.map

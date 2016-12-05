@@ -28,23 +28,9 @@ export default (app, plugin) => {
     if (!tags.length) {
       return Promise.reject(tagsMustBeNotEmptyArrayError(ERROR_INFO));
     }
-  
-    return new Promise((resolve, reject) => {
-      const hasManyTags = tags.length;
-  
-      plugin.client.hmget(TAGS_KEY, ...tags, callback);
-    
-      function callback(err, result) {
-        if (err) {
-          return reject(internalError(app, err, ERROR_INFO));
-        }
-      
-        if (result === null || !hasManyTags) {
-          return resolve(result);
-        }
-      
-        resolve(reduced(tags, result));
-      }
-    });
+
+    return plugin.client.hmget(TAGS_KEY, ...tags)
+      .then(result => result === null ? result : reduced(tags, result))
+      .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
   };
 };

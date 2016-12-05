@@ -10,8 +10,6 @@ var _lodash = require('lodash.isstring');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _pins = require('../../pins');
-
 var _constants = require('../constants');
 
 var _internalError = require('../../../errors/internal-error');
@@ -22,13 +20,9 @@ var _propertyIsRequiredError = require('../../../errors/property-is-required-err
 
 var _propertyIsRequiredError2 = _interopRequireDefault(_propertyIsRequiredError);
 
-var _tagsMustBeArrayOrUndefined = require('./../errors/tags-must-be-array-or-undefined');
-
-var _tagsMustBeArrayOrUndefined2 = _interopRequireDefault(_tagsMustBeArrayOrUndefined);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_NAME_SET };
+const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_NAME_HAS };
 
 /**
  * Устанавливает значения ключа в кеш
@@ -41,35 +35,17 @@ const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_N
 exports.default = (app, plugin) => {
   /**
    * @param {string} key            Ключ кеша
-   * @param {*} value               Значение ключа в кеше
-   * @param {Array<string>} [tags]  Список тегов для установки нового значения
    *
    * @returns {Promise<null|*|error>}
    */
   return (_ref) => {
-    let key = _ref.key,
-        value = _ref.value;
-    var _ref$tags = _ref.tags;
-    let tags = _ref$tags === undefined ? [] : _ref$tags;
+    let key = _ref.key;
 
     if (!(0, _lodash2.default)(key) || key === '') {
       return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
     }
 
-    if (value === undefined) {
-      return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'value' })));
-    }
-
-    if (!Array.isArray(tags) || tags !== undefined) {
-      return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
-    }
-
-    // Получим текущие значения переданных тегов
-    return app.act({ PIN_TAGS_GET: _pins.PIN_TAGS_GET, tags }).then(tagsValues => {
-      const hash = ['value', JSON.stringify(value), 'tags', JSON.stringify(tagsValues)];
-
-      return plugin.client.hmset(key, ...hash).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-    });
+    return plugin.client.hexists(key).then(exists => exists === 1).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
-//# sourceMappingURL=set.js.map
+//# sourceMappingURL=has.js.map

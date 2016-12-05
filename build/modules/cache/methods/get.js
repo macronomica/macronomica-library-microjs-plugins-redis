@@ -74,28 +74,22 @@ exports.default = (app, plugin) => {
       return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
     }
 
-    return new Promise((resolve, reject) => {
-      plugin.client.hgetall(key, __get);
+    return plugin.client.hgetall(key).then(__success).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
 
-      function __get(err, res) {
-        if (err) {
-          return reject((0, _internalError2.default)(app, err, ERROR_INFO));
-        }
-
-        // Запрашиваемый ключ отсутвует
-        if (res === null) {
-          // запустим проверку на обновление по setCb
-          return callSetIfCallbackExists(app, { key, setCb, tags }).then(resolve, reject);
-        }
-
-        // Проверим актуальность тегов
-        app.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: res.tags })).then(
-        // Если теги актуальны - вернем результат
-        () => resolve(JSON.parse(res.value, parseReviver)),
-        // Иначе запустим проверку на обновление
-        () => callSetIfCallbackExists(app, { key, setCb, tags }));
+    function __success(res) {
+      // Запрашиваемый ключ отсутвует
+      if (res === null) {
+        // запустим проверку на обновление по setCb
+        return callSetIfCallbackExists(app, { key, setCb, tags });
       }
-    });
+
+      // Проверим актуальность тегов
+      return app.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: res.tags })).then(
+      // Если теги актуальны - вернем результат
+      () => resolve(JSON.parse(res.value, parseReviver)),
+      // Иначе запустим проверку на обновление
+      () => callSetIfCallbackExists(app, { key, setCb, tags }));
+    }
   };
 };
 

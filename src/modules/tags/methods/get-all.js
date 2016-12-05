@@ -9,11 +9,11 @@ const ERROR_INFO = { module: MODULE_NAME, action: ACTION_NAME_GET_ALL };
  *
  * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
- * @returns {function({tags: Array<string>}): Promise}
+ * @returns {function({tags?: Array<string>}): Promise}
  */
 export default (app, plugin) => {
   /**
-   * @param {Array<string>} [tags]  Список имен тегов для полуения их значений
+   * @param {Array<string>} [tags]  Список имен тегов для получения их значений
    *
    * @returns {Promise<null|*|error>}
    */
@@ -22,21 +22,9 @@ export default (app, plugin) => {
       tags = [];
     }
     
-    return new Promise((resolve, reject) => {
-      plugin.client.hgetall(TAGS_KEY, callback);
-  
-      function callback(err, result) {
-        if (err) {
-          return reject(internalError(app, err, ERROR_INFO));
-        }
-    
-        if (result === null) {
-          return resolve(result);
-        }
-    
-        resolve(reduced(tags, result));
-      }
-    });
+    return plugin.client.hgetall(TAGS_KEY)
+      .then(result => result === null ? result : reduced(tags, result))
+      .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
   };
 };
 

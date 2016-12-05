@@ -22,10 +22,10 @@ var _tagsMustBeNotEmptyArray2 = _interopRequireDefault(_tagsMustBeNotEmptyArray)
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const ERROR_INFO = { module: _constants2.MODULE_NAME, action: _constants2.ACTION_NAME_SET };
+const ERROR_INFO = { module: _constants2.MODULE_NAME, action: _constants2.ACTION_NAME_DEL };
 
 /**
- * Записывает в ключ TAGS_KEY из кеша переданные теги с новыми значениями
+ * Удаляет значения тегов из общего списка
  *
  * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
@@ -34,7 +34,7 @@ const ERROR_INFO = { module: _constants2.MODULE_NAME, action: _constants2.ACTION
 
 exports.default = (app, plugin) => {
   /**
-   * @param {Array<string>} tags  Список имен тегов для установки новых значений
+   * @param {Array<string>} tags  Список имен тегов для удаления
    *
    * @returns {Promise<null|*|error>}
    */
@@ -50,21 +50,7 @@ exports.default = (app, plugin) => {
       return Promise.reject((0, _tagsMustBeNotEmptyArray2.default)(ERROR_INFO));
     }
 
-    try {
-      const result = setDateNow(tags);
-      return plugin.client.hmset(_constants.TAGS_KEY, ...result.keys).then(() => result.tags).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-    } catch (err) {
-      return Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO));
-    }
+    return plugin.client.hdel(_constants.TAGS_KEY, ...tags).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
-
-function setDateNow(tags) {
-  return tags.reduce((result, tag) => {
-    result.tags[tag] = Date.now();
-    result.keys.push(tag);
-    result.keys.push(result.tags[tag]);
-    return result;
-  }, { keys: [], tags: {} });
-}
-//# sourceMappingURL=set.js.map
+//# sourceMappingURL=del.js.map
