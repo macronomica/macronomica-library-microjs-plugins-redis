@@ -3,12 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.reduced = reduced;
 
 var _constants = require('./../constants');
 
 var _constants2 = require('../constants');
-
-var _getAll = require('./get-all');
 
 var _internalError = require('../../../errors/internal-error');
 
@@ -52,7 +51,35 @@ exports.default = (app, plugin) => {
       return Promise.reject((0, _tagsMustBeNotEmptyArray2.default)(ERROR_INFO));
     }
 
-    return plugin.client.hmget(_constants.TAGS_KEY, ...tags).then(result => result === null ? result : (0, _getAll.reduced)(tags, result)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
+    return plugin.client.hmget(_constants.TAGS_KEY, ...tags).then(result => result === null ? result : reduced(tags, result)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
+
+function reduced(keys, values) {
+  return keys.length > values.length ? reduceKeys(keys, values) : reduceValues(keys, values);
+}
+
+function reduceKeys(keys, values) {
+  return keys.reduce((result, key, i) => {
+    result = Object.assign(result, { [key]: Number(values[i]) });
+
+    if (result[key] === 0) {
+      result[key] = null;
+    }
+
+    return result;
+  }, {});
+}
+
+function reduceValues(keys, values) {
+  return values.reduce((result, value, i) => {
+    result = Object.assign(result, { [keys[i]]: Number(value) });
+
+    if (result[keys[i]] === 0) {
+      result[keys[i]] = null;
+    }
+
+    return result;
+  }, {});
+}
 //# sourceMappingURL=get.js.map

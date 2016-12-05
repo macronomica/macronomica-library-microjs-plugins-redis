@@ -11,7 +11,7 @@ var _constants = require('./constants');
 
 const PIN_CACHE = { role: 'plugin', module: _constants.MODULE_NAME };
 
-const PIN_CACHE_GET = exports.PIN_CACHE_GET = _extends({}, PIN_CACHE, { cmd: _constants.ACTION_NAME_GET, key: '*', setCb: '*' });
+const PIN_CACHE_GET = exports.PIN_CACHE_GET = _extends({}, PIN_CACHE, { cmd: _constants.ACTION_NAME_GET, key: '*' });
 const PIN_CACHE_SET = exports.PIN_CACHE_SET = _extends({}, PIN_CACHE, { cmd: _constants.ACTION_NAME_SET, key: '*', value: '*' });
 const PIN_CACHE_HAS = exports.PIN_CACHE_HAS = _extends({}, PIN_CACHE, { cmd: _constants.ACTION_NAME_HAS, key: '*' });
 const PIN_CACHE_DEL = exports.PIN_CACHE_DEL = _extends({}, PIN_CACHE, { cmd: _constants.ACTION_NAME_DEL, key: '*' });

@@ -17,27 +17,19 @@ export default (app, plugin) => {
    *
    * @returns {Promise<null|*|error>}
    */
-  return ({ tags = [] }) => {
-    if (!Array.isArray(tags)) {
-      tags = [];
-    }
+  return ({ }) => {
     
     return plugin.client.hgetall(TAGS_KEY)
-      .then(result => result === null ? result : reduced(tags, result))
+      .then(result => {
+        if (result === null) {
+          return result;
+        }
+
+        return Object
+          .keys(result)
+          .reduce((tags, tag) => Object
+            .assign(tags, { [ tag ]: Number(result[ tag ]) }), {});
+      })
       .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
   };
 };
-
-export function reduced(keys, values) {
-  return keys.length > values.length
-    ? reduceKeys(keys, values)
-    : reduceValues(keys, values);
-}
-
-function reduceKeys(keys, values) {
-  return keys.reduce((result, key, i) => Object.assign(result, { [ key ]: values[ i ] }), {});
-}
-
-function reduceValues(keys, values) {
-  return values.reduce((result, value, i) => Object.assign(result, { [ keys[ i ] ]: value }), {});
-}

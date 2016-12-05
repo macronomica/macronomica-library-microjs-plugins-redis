@@ -1,9 +1,12 @@
 import chai from 'chai';
 import Micro, { LEVEL_ERROR } from '@microjs/microjs';
-import { CONNECT_OPTIONS } from './constants';
 import RedisPlugin, { PIN_CONNECTION, EVENTS_CONNECT, EVENTS_DISCONNECT } from '../index';
 
 const should = chai.should();
+const CONNECT_OPTIONS = {
+  driver  : 'sqlite3',
+  filename: ':memory:'
+};
 
 describe('lifecicle', function() {
 

@@ -19,11 +19,11 @@ export default (app, plugin) => {
    * @returns {Promise<null|*|error>}
    */
     return ({ key }) => {
-      if (!isString(key) || key === '') {
+      if (!isString(key) || key === ''|| key === '*') {
         return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
       }
       
-      return plugin.client.hdel(key)
+      return plugin.client.del(key)
         .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
     };
 };

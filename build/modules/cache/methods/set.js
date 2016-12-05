@@ -52,7 +52,7 @@ exports.default = (app, plugin) => {
     var _ref$tags = _ref.tags;
     let tags = _ref$tags === undefined ? [] : _ref$tags;
 
-    if (!(0, _lodash2.default)(key) || key === '') {
+    if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
       return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
     }
 
@@ -60,16 +60,24 @@ exports.default = (app, plugin) => {
       return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'value' })));
     }
 
-    if (!Array.isArray(tags) || tags !== undefined) {
+    if (!Array.isArray(tags) && tags !== undefined) {
       return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
     }
 
+    if (!tags.length) {
+      return Promise.resolve().then(__exec);
+    }
+
     // Получим текущие значения переданных тегов
-    return app.act({ PIN_TAGS_GET: _pins.PIN_TAGS_GET, tags }).then(tagsValues => {
+    return app.act(_extends({}, _pins.PIN_TAGS_GET, { tags })).then(__exec);
+
+    function __exec() {
+      let tagsValues = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
       const hash = ['value', JSON.stringify(value), 'tags', JSON.stringify(tagsValues)];
 
       return plugin.client.hmset(key, ...hash).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-    });
+    }
   };
 };
 //# sourceMappingURL=set.js.map

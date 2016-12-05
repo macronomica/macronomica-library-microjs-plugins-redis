@@ -8,8 +8,6 @@ var _microjs = require('@microjs/microjs');
 
 var _microjs2 = _interopRequireDefault(_microjs);
 
-var _constants = require('./constants');
-
 var _index = require('../index');
 
 var _index2 = _interopRequireDefault(_index);
@@ -17,13 +15,17 @@ var _index2 = _interopRequireDefault(_index);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const should = _chai2.default.should();
+const CONNECT_OPTIONS = {
+  driver: 'sqlite3',
+  filename: ':memory:'
+};
 
 describe('lifecicle', function () {
 
   it('#connect', () => new Promise((resolve, reject) => {
     const micro = (0, _microjs2.default)({
       level: _microjs.LEVEL_ERROR,
-      plugins: [(0, _index2.default)(_constants.CONNECT_OPTIONS)]
+      plugins: [(0, _index2.default)(CONNECT_OPTIONS)]
     });
     let __client;
 
@@ -35,7 +37,7 @@ describe('lifecicle', function () {
   it('#disconnect', () => new Promise((resolve, reject) => {
     const micro = (0, _microjs2.default)({
       level: _microjs.LEVEL_ERROR,
-      plugins: [(0, _index2.default)(_constants.CONNECT_OPTIONS)]
+      plugins: [(0, _index2.default)(CONNECT_OPTIONS)]
     });
 
     micro.on(_index.EVENTS_DISCONNECT, result => should.equal(null, result));

@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.reduced = reduced;
 
 var _constants = require('./../constants');
 
@@ -14,6 +13,8 @@ var _internalError = require('../../../errors/internal-error');
 var _internalError2 = _interopRequireDefault(_internalError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectDestructuringEmpty(obj) { if (obj == null) throw new TypeError("Cannot destructure undefined"); }
 
 const ERROR_INFO = { module: _constants2.MODULE_NAME, action: _constants2.ACTION_NAME_GET_ALL };
 
@@ -32,26 +33,15 @@ exports.default = (app, plugin) => {
    * @returns {Promise<null|*|error>}
    */
   return (_ref) => {
-    var _ref$tags = _ref.tags;
-    let tags = _ref$tags === undefined ? [] : _ref$tags;
+    _objectDestructuringEmpty(_ref);
 
-    if (!Array.isArray(tags)) {
-      tags = [];
-    }
+    return plugin.client.hgetall(_constants.TAGS_KEY).then(result => {
+      if (result === null) {
+        return result;
+      }
 
-    return plugin.client.hgetall(_constants.TAGS_KEY).then(result => result === null ? result : reduced(tags, result)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
+      return Object.keys(result).reduce((tags, tag) => Object.assign(tags, { [tag]: Number(result[tag]) }), {});
+    }).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
-
-function reduced(keys, values) {
-  return keys.length > values.length ? reduceKeys(keys, values) : reduceValues(keys, values);
-}
-
-function reduceKeys(keys, values) {
-  return keys.reduce((result, key, i) => Object.assign(result, { [key]: values[i] }), {});
-}
-
-function reduceValues(keys, values) {
-  return values.reduce((result, value, i) => Object.assign(result, { [keys[i]]: value }), {});
-}
 //# sourceMappingURL=get-all.js.map

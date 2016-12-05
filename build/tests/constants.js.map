@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../src/tests/constants.js"],"names":["CONNECT_OPTIONS","driver","filename"],"mappings":";;;;;AACO,MAAMA,4CAAkB;AAC7BC,UAAU,SADmB;AAE7BC,YAAU;AAFmB,CAAxB","file":"constants.js","sourcesContent":["\nexport const CONNECT_OPTIONS = {\n  driver  : 'sqlite3',\n  filename: ':memory:'\n};"]}

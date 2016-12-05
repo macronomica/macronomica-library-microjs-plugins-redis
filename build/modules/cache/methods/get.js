@@ -62,15 +62,15 @@ exports.default = (app, plugin) => {
         setCb = _ref.setCb,
         tags = _ref.tags;
 
-    if (!(0, _lodash2.default)(key) || key === '') {
+    if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
       return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
     }
 
-    if (!(0, _lodash4.default)(setCb) || setCb !== undefined) {
+    if (!(0, _lodash4.default)(setCb) && setCb !== undefined) {
       return Promise.reject((0, _setCbMustBeFunctionOrUndefined2.default)(ERROR_INFO));
     }
 
-    if (!Array.isArray(tags) || tags !== undefined) {
+    if (!Array.isArray(tags) && tags !== undefined) {
       return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
     }
 
@@ -84,9 +84,9 @@ exports.default = (app, plugin) => {
       }
 
       // Проверим актуальность тегов
-      return app.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: res.tags })).then(
+      return app.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: JSON.parse(res.tags) })).then(
       // Если теги актуальны - вернем результат
-      () => resolve(JSON.parse(res.value, parseReviver)),
+      () => JSON.parse(res.value, parseReviver),
       // Иначе запустим проверку на обновление
       () => callSetIfCallbackExists(app, { key, setCb, tags }));
     }
@@ -118,7 +118,7 @@ function callSetIfCallbackExists(app, _ref2) {
         promise = Promise.resolve(promise);
       }
 
-      return promise.then(value => app.act(_extends({}, _pins.PIN_CACHE_SET, { key, value, tags }))).then(resolve, reject);
+      return promise.then(value => app.act(_extends({}, _pins.PIN_CACHE_SET, { key, value, tags })).then(() => value)).then(resolve, reject);
     }
 
     return resolve(null);

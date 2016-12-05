@@ -48,6 +48,12 @@ exports.default = (app, plugin) => {
       return Promise.reject((0, _tagsMustBeObject2.default)(ERROR_INFO));
     }
 
+    const tagsKeys = Object.keys(tags);
+
+    if (!tagsKeys.length) {
+      return Promise.resolve(true);
+    }
+
     return app.act(_extends({}, _pins.PIN_TAGS_GET, { tags: Object.keys(tags) })).then(hasTagUpdated(tags)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
@@ -59,7 +65,7 @@ function hasTagUpdated(tags) {
       return Promise.resolve(false);
     }
 
-    return Promise.resolve(originalTagsKeys.some(key => originalTags[key] === tags[key]));
+    return Promise.resolve(originalTagsKeys.some(key => originalTags[key] === Number(tags[key])));
   };
 }
 //# sourceMappingURL=has.js.map

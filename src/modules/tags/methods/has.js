@@ -24,6 +24,12 @@ export default (app, plugin) => {
       return Promise.reject(tagsMystBeObjectError(ERROR_INFO));
     }
 
+    const tagsKeys = Object.keys(tags);
+
+    if (!tagsKeys.length) {
+      return Promise.resolve(true);
+    }
+
     return app.act({ ...PIN_TAGS_GET, tags: Object.keys(tags) })
       .then(hasTagUpdated(tags))
       .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
@@ -37,6 +43,6 @@ function hasTagUpdated(tags) {
       return Promise.resolve(false);
     }
 
-    return Promise.resolve(originalTagsKeys.some(key => originalTags[ key ] === tags[ key ]));
+    return Promise.resolve(originalTagsKeys.some(key => originalTags[ key ] === Number(tags[ key ])));
   };
 }

@@ -19,7 +19,7 @@ export default (app, plugin) => {
    * @returns {Promise<null|*|error>}
    */
     return ({ key }) => {
-      if (!isString(key) || key === '') {
+      if (!isString(key) || key === ''|| key === '*') {
         return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
       }
       

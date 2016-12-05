@@ -27,15 +27,15 @@ export default (app, plugin) => {
    * @returns {Promise<null|*|error>}
    */
   return ({ key, setCb, tags }) => {
-    if (!isString(key) || key === '') {
+    if (!isString(key) || key === ''|| key === '*') {
       return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
     }
   
-    if (!isFunction(setCb) || setCb !== undefined) {
+    if (!isFunction(setCb) && setCb !== undefined) {
       return Promise.reject(tagsMustBeFunctionOrUndefinedError(ERROR_INFO));
     }
   
-    if (!Array.isArray(tags) || tags !== undefined) {
+    if (!Array.isArray(tags) && tags !== undefined) {
       return Promise.reject(tagsMustBeArrayOrUndefinedError(ERROR_INFO));
     }
     
@@ -51,10 +51,10 @@ export default (app, plugin) => {
       }
     
       // Проверим актуальность тегов
-      return app.act({ ...PIN_TAGS_HAS, tags: res.tags })
+      return app.act({ ...PIN_TAGS_HAS, tags: JSON.parse(res.tags) })
         .then(
           // Если теги актуальны - вернем результат
-          () => resolve(JSON.parse(res.value, parseReviver)),
+          () => JSON.parse(res.value, parseReviver),
           // Иначе запустим проверку на обновление
           () => callSetIfCallbackExists(app, { key, setCb, tags })
         );
@@ -82,7 +82,10 @@ function callSetIfCallbackExists(app, { key, setCb, tags }) {
       }
     
       return promise
-        .then(value => app.act({ ...PIN_CACHE_SET, key, value, tags }))
+        .then(value => app
+          .act({ ...PIN_CACHE_SET, key, value, tags })
+          .then(() => value)
+        )
         .then(resolve, reject);
     }
   

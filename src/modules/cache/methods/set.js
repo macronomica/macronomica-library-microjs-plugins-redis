@@ -23,7 +23,7 @@ export default (app, plugin) => {
    * @returns {Promise<null|*|error>}
    */
     return ({ key, value, tags = [] }) => {
-      if (!isString(key) || key === '') {
+      if (!isString(key) || key === ''|| key === '*') {
         return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
       }
       
@@ -31,21 +31,26 @@ export default (app, plugin) => {
         return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'value' }));
       }
             
-      if (!Array.isArray(tags) || tags !== undefined) {
+      if (!Array.isArray(tags) && tags !== undefined) {
         return Promise.reject(tagsMustBeArrayOrUndefinedError(ERROR_INFO));
       }
-      
+
+      if (!tags.length) {
+        return Promise.resolve().then(__exec);
+      }
+
       // Получим текущие значения переданных тегов
-      return app.act({ PIN_TAGS_GET, tags })
-        .then(tagsValues => {
-          const hash = [
-            'value', JSON.stringify(value),
-            'tags', JSON.stringify(tagsValues)
-          ];
-    
-          return plugin.client
-            .hmset(key, ...hash)
-            .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
-        });
+      return app.act({ ...PIN_TAGS_GET, tags }).then(__exec);
+
+      function __exec(tagsValues = {}) {
+        const hash = [
+          'value', JSON.stringify(value),
+          'tags', JSON.stringify(tagsValues)
+        ];
+
+        return plugin.client
+          .hmset(key, ...hash)
+          .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
+      }
     };
 };

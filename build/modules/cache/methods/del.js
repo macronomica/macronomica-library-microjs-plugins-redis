@@ -41,11 +41,11 @@ exports.default = (app, plugin) => {
   return (_ref) => {
     let key = _ref.key;
 
-    if (!(0, _lodash2.default)(key) || key === '') {
+    if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
       return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
     }
 
-    return plugin.client.hdel(key).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
+    return plugin.client.del(key).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
   };
 };
 //# sourceMappingURL=del.js.map
