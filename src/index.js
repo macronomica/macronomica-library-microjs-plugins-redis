@@ -1,4 +1,6 @@
 import RedisPlugin from './plugin';
+import tools from './tools';
+
 import {
   PIN_PLUGIN,
   PIN_OPTIONS,
@@ -24,6 +26,8 @@ import {
 
 export default RedisPlugin;
 export {
+  tools,
+  
   PIN_PLUGIN,
   PIN_OPTIONS,
   PIN_CONNECTION,
