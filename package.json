@@ -1,6 +1,6 @@
 {
   "name": "@microjs/microjs-plugins-redis",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Плагин Microjs для запросов в Redis",
   "main": "index.js",
