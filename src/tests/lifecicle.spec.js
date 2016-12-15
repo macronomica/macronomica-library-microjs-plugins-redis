@@ -41,10 +41,10 @@ describe('lifecicle', function() {
       .run()
       .then(() => micro.end())
       .then(() => micro.act(PIN_CONNECTION))
-      .catch(error => should.equal(
-        error,
-        `Вызов не существующего маршрута: ${ JSON.stringify(PIN_CONNECTION) }`
-      ))
+      .catch(error => Promise.all([
+        should.equal(error.code, 'error.common/act.not.found'),
+        should.equal(error.message, 'Вызов не существующего маршрута')
+      ]))
       .then(resolve)
       .catch(reject);
   }));

@@ -42,7 +42,7 @@ describe('lifecicle', function () {
 
     micro.on(_index.EVENTS_DISCONNECT, result => should.equal(null, result));
 
-    return micro.run().then(() => micro.end()).then(() => micro.act(_index.PIN_CONNECTION)).catch(error => should.equal(error, `Вызов не существующего маршрута: ${ JSON.stringify(_index.PIN_CONNECTION) }`)).then(resolve).catch(reject);
+    return micro.run().then(() => micro.end()).then(() => micro.act(_index.PIN_CONNECTION)).catch(error => Promise.all([should.equal(error.code, 'error.common/act.not.found'), should.equal(error.message, 'Вызов не существующего маршрута')])).then(resolve).catch(reject);
   }));
 });
 //# sourceMappingURL=lifecicle.spec.js.map
