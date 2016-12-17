@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@microjs/microjs": "git+ssh://git@github.com:macronomica/macronomica-library-microjs.git#latest",
+    "config": "^1.24.0",
     "lodash.isfunction": "^3.0.8",
     "lodash.isplainobject": "^4.0.6",
     "redis": "^2.6.3"

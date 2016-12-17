@@ -1,5 +1,9 @@
 'use strict';
 
+var _config = require('config');
+
+var _config2 = _interopRequireDefault(_config);
+
 var _chai = require('chai');
 
 var _chai2 = _interopRequireDefault(_chai);
@@ -15,10 +19,7 @@ var _index2 = _interopRequireDefault(_index);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const should = _chai2.default.should();
-const CONNECT_OPTIONS = {
-  driver: 'sqlite3',
-  filename: ':memory:'
-};
+const CONNECT_OPTIONS = _config2.default.has('redis') ? _config2.default.get('redis') : {};
 
 describe('lifecicle', function () {
 

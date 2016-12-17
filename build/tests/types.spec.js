@@ -7,6 +7,10 @@ exports.DATA = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _config = require('config');
+
+var _config2 = _interopRequireDefault(_config);
+
 var _chai = require('chai');
 
 var _chai2 = _interopRequireDefault(_chai);
@@ -23,7 +27,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const micro = (0, _microjs2.default)({
   level: _microjs.LEVEL_WARN,
-  plugins: [(0, _index2.default)({})]
+  plugins: [(0, _index2.default)(_config2.default.has('redis') ? _config2.default.get('redis') : {})]
 });
 const should = _chai2.default.should();
 const KEY = 'test-types-key';

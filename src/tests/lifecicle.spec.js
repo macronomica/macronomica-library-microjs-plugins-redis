@@ -1,12 +1,10 @@
+import config from 'config';
 import chai from 'chai';
 import Micro, { LEVEL_ERROR } from '@microjs/microjs';
 import RedisPlugin, { PIN_CONNECTION, EVENTS_CONNECT, EVENTS_DISCONNECT } from '../index';
 
 const should = chai.should();
-const CONNECT_OPTIONS = {
-  driver  : 'sqlite3',
-  filename: ':memory:'
-};
+const CONNECT_OPTIONS = config.has('redis') ? config.get('redis') : {};
 
 describe('lifecicle', function() {
 

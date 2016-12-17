@@ -1,3 +1,4 @@
+import config from 'config';
 import chai from 'chai';
 import Microjs, { LEVEL_WARN } from '@microjs/microjs';
 import Plugin, {
@@ -10,7 +11,7 @@ import Plugin, {
 const micro = Microjs({
   level  : LEVEL_WARN,
   plugins: [
-    Plugin({})
+    Plugin(config.has('redis') ? config.get('redis') : {})
   ]
 });
 

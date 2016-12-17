@@ -1,3 +1,4 @@
+import config from 'config';
 import chai from 'chai';
 import Microjs, { LEVEL_WARN } from '@microjs/microjs';
 import Plugin, { PIN_CACHE_GET, PIN_CACHE_SET, PIN_CACHE_DEL } from '../index';
@@ -5,7 +6,7 @@ import Plugin, { PIN_CACHE_GET, PIN_CACHE_SET, PIN_CACHE_DEL } from '../index';
 const micro = Microjs({
   level  : LEVEL_WARN,
   plugins: [
-    Plugin({})
+    Plugin(config.has('redis') ? config.get('redis') : {})
   ]
 });
 const should = chai.should();
