@@ -10,47 +10,42 @@ const ERROR_INFO = { module: MODULE_NAME, action: ACTION_NAME_SET };
 /**
  * Устанавливает значения ключа в кеш
  *
- * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
  * @returns {function({key?: *, setCb?: *, tags?: *}): Promise}
  */
-export default (app, plugin) => {
-  /**
-   * @param {string} key            Ключ кеша
-   * @param {*} value               Значение ключа в кеше
-   * @param {Array<string>} [tags]  Список тегов для установки нового значения
-   *
-   * @returns {Promise<null|*|error>}
-   */
-    return ({ key, value, tags = [] }) => {
-      if (!isString(key) || key === ''|| key === '*') {
-        return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
-      }
-      
-      if (value === undefined) {
-        return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'value' }));
-      }
-            
-      if (!Array.isArray(tags) && tags !== undefined) {
-        return Promise.reject(tagsMustBeArrayOrUndefinedError(ERROR_INFO));
-      }
-
-      if (!tags.length) {
-        return Promise.resolve().then(__exec);
-      }
-
-      // Получим текущие значения переданных тегов
-      return app.act({ ...PIN_TAGS_GET, tags }).then(__exec);
-
-      function __exec(tagsValues = {}) {
-        const hash = [
-          'value', JSON.stringify(value),
-          'tags', JSON.stringify(tagsValues)
-        ];
-
-        return plugin.client
-          .hmset(key, ...hash)
-          .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
-      }
-    };
+export default (plugin) => (request) => {
+  const { key, value, tags = [] } = request;
+  
+  if (!isString(key) || key === ''|| key === '*') {
+    return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
+  }
+  
+  if (value === undefined) {
+    return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'value' }));
+  }
+  
+  if (!Array.isArray(tags) && tags !== undefined) {
+    return Promise.reject(tagsMustBeArrayOrUndefinedError(ERROR_INFO));
+  }
+  
+  if (!tags.length) {
+    return Promise.resolve().then(__exec);
+  }
+  
+  // Получим текущие значения переданных тегов
+  return request.act({ ...PIN_TAGS_GET, tags }).then(__exec);
+  
+  function __exec(tagsValues = {}) {
+    const hash = [
+      'value', JSON.stringify(value),
+      'tags', JSON.stringify(tagsValues)
+    ];
+    
+    return plugin.client
+      .hmset(key, ...hash)
+      .catch(err => {
+        request.log.error(err);
+        return Promise.reject(internalError(request, err, ERROR_INFO));
+      });
+  }
 };

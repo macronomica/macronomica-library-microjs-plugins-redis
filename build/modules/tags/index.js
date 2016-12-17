@@ -35,22 +35,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (app, plugin, _ref) => {
   let onClose = _ref.onClose;
 
-  app.add(_pins.PIN_TAGS_GET, (0, _get2.default)(app, plugin));
-  app.add(_pins.PIN_TAGS_SET, (0, _set2.default)(app, plugin));
-  app.add(_pins.PIN_TAGS_HAS, (0, _has2.default)(app, plugin));
-  app.add(_pins.PIN_TAGS_DEL, (0, _del2.default)(app, plugin));
-  app.add(_pins.PIN_TAGS_GET_ALL, (0, _getAll2.default)(app, plugin));
-  app.add(_pins.PIN_TAGS_DEL_ALL, (0, _delAll2.default)(app, plugin));
-
-  onClose(handlerOnClose);
+  app.add(_pins.PIN_TAGS_GET, (0, _get2.default)(plugin));
+  app.add(_pins.PIN_TAGS_SET, (0, _set2.default)(plugin));
+  app.add(_pins.PIN_TAGS_HAS, (0, _has2.default)(plugin));
+  app.add(_pins.PIN_TAGS_DEL, (0, _del2.default)(plugin));
+  app.add(_pins.PIN_TAGS_GET_ALL, (0, _getAll2.default)(plugin));
+  app.add(_pins.PIN_TAGS_DEL_ALL, (0, _delAll2.default)(plugin));
 };
-
-function handlerOnClose(app) {
-  app.del(_pins.PIN_TAGS_DEL_ALL);
-  app.del(_pins.PIN_TAGS_GET_ALL);
-  app.del(_pins.PIN_TAGS_DEL);
-  app.del(_pins.PIN_TAGS_HAS);
-  app.del(_pins.PIN_TAGS_SET);
-  app.del(_pins.PIN_TAGS_GET);
-}
 //# sourceMappingURL=index.js.map

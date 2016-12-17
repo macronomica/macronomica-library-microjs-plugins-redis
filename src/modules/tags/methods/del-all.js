@@ -7,16 +7,13 @@ const ERROR_INFO = { module: MODULE_NAME, action: ACTION_NAME_DEL_ALL };
 /**
  * Удаляет все теги
  *
- * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
  * @returns {function({tags: Array<string>}): Promise}
  */
-export default (app, plugin) => {
-  /**
-   * @returns {Promise<null|*|error>}
-   */
-    return ({ }) => {
-      return plugin.client.del(TAGS_KEY)
-        .catch(err => Promise.reject(internalError(app, err, ERROR_INFO)));
-    };
+export default (plugin) => (request) => {
+  return plugin.client.del(TAGS_KEY)
+    .catch(err => {
+      request.log.error(err);
+      return Promise.reject(internalError(request, err, ERROR_INFO));
+    });
 };

@@ -29,33 +29,28 @@ const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_N
 /**
  * Записывает в ключ TAGS_KEY из кеша переданные теги с новыми значениями
  *
- * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
  * @returns {function({tags: Array<string>}): Promise}
  */
 
-exports.default = (app, plugin) => {
-  /**
-   * @param {Object<string, number>} tags  Список имен тегов со значениями
-   *
-   * @returns {Promise<null|*|error>}
-   */
-  return (_ref) => {
-    var _ref$tags = _ref.tags;
-    let tags = _ref$tags === undefined ? {} : _ref$tags;
+exports.default = plugin => request => {
+  var _request$tags = request.tags;
+  const tags = _request$tags === undefined ? {} : _request$tags;
 
-    if (!(0, _lodash2.default)(tags)) {
-      return Promise.reject((0, _tagsMustBeObject2.default)(ERROR_INFO));
-    }
+  if (!(0, _lodash2.default)(tags)) {
+    return Promise.reject((0, _tagsMustBeObject2.default)(ERROR_INFO));
+  }
 
-    const tagsKeys = Object.keys(tags);
+  const tagsKeys = Object.keys(tags);
 
-    if (!tagsKeys.length) {
-      return Promise.resolve(true);
-    }
+  if (!tagsKeys.length) {
+    return Promise.resolve(true);
+  }
 
-    return app.act(_extends({}, _pins.PIN_TAGS_GET, { tags: Object.keys(tags) })).then(hasTagUpdated(tags)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-  };
+  return request.act(_extends({}, _pins.PIN_TAGS_GET, { tags: Object.keys(tags) })).then(hasTagUpdated(tags)).catch(err => {
+    request.log.error(err);
+    return Promise.reject((0, _internalError2.default)(request, err, ERROR_INFO));
+  });
 };
 
 function hasTagUpdated(tags) {

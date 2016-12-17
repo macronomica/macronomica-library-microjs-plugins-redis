@@ -28,31 +28,26 @@ const ERROR_INFO = { module: _constants2.MODULE_NAME, action: _constants2.ACTION
 /**
  * Получает ключ TAGS_KEY из кеша с тегами и их текущими значениями
  *
- * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
  * @returns {function({tags: Array<string>}): Promise}
  */
 
-exports.default = (app, plugin) => {
-  /**
-   * @param {Array<string>} tags  Список имен тегов для полуения их значений
-   *
-   * @returns {Promise<null|*|error>}
-   */
-  return (_ref) => {
-    var _ref$tags = _ref.tags;
-    let tags = _ref$tags === undefined ? [] : _ref$tags;
+exports.default = plugin => request => {
+  var _request$tags = request.tags;
+  const tags = _request$tags === undefined ? [] : _request$tags;
 
-    if (!Array.isArray(tags)) {
-      return Promise.reject((0, _tagsMustBeArray2.default)(ERROR_INFO));
-    }
+  if (!Array.isArray(tags)) {
+    return Promise.reject((0, _tagsMustBeArray2.default)(ERROR_INFO));
+  }
 
-    if (!tags.length) {
-      return Promise.reject((0, _tagsMustBeNotEmptyArray2.default)(ERROR_INFO));
-    }
+  if (!tags.length) {
+    return Promise.reject((0, _tagsMustBeNotEmptyArray2.default)(ERROR_INFO));
+  }
 
-    return plugin.client.hmget(_constants.TAGS_KEY, ...tags).then(result => result === null ? result : reduced(tags, result)).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-  };
+  return plugin.client.hmget(_constants.TAGS_KEY, ...tags).then(result => result === null ? result : reduced(tags, result)).catch(err => {
+    request.log.error(err);
+    return Promise.reject((0, _internalError2.default)(request, err, ERROR_INFO));
+  });
 };
 
 function reduced(keys, values) {

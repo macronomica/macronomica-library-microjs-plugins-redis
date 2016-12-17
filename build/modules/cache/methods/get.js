@@ -44,53 +44,47 @@ const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_N
  * Получает значение ключа из кеша
  * - если передан метод setCb вызовет получение нового значения ключа если такового нет
  *
- * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
  * @returns {function({key?: *, setCb?: *, tags?: *}): Promise}
  */
 
-exports.default = (app, plugin) => {
-  /**
-   * @param {string} key            Ключ кеша
-   * @param {function} [setCb]      Функция получения нового значения
-   * @param {Array<string>} [tags]  Список тегов для установки нового значения
-   *
-   * @returns {Promise<null|*|error>}
-   */
-  return (_ref) => {
-    let key = _ref.key,
-        setCb = _ref.setCb,
-        tags = _ref.tags;
+exports.default = plugin => request => {
+  const key = request.key,
+        setCb = request.setCb,
+        tags = request.tags;
 
-    if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
-      return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
+
+  if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
+    return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
+  }
+
+  if (!(0, _lodash4.default)(setCb) && setCb !== undefined) {
+    return Promise.reject((0, _setCbMustBeFunctionOrUndefined2.default)(ERROR_INFO));
+  }
+
+  if (!Array.isArray(tags) && tags !== undefined) {
+    return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
+  }
+
+  return plugin.client.hgetall(key).then(__success).catch(err => {
+    request.log.error(err);
+    return Promise.reject((0, _internalError2.default)(request, err, ERROR_INFO));
+  });
+
+  function __success(res) {
+    // Запрашиваемый ключ отсутвует
+    if (res === null) {
+      // запустим проверку на обновление по setCb
+      return callSetIfCallbackExists(request, { key, setCb, tags });
     }
 
-    if (!(0, _lodash4.default)(setCb) && setCb !== undefined) {
-      return Promise.reject((0, _setCbMustBeFunctionOrUndefined2.default)(ERROR_INFO));
-    }
-
-    if (!Array.isArray(tags) && tags !== undefined) {
-      return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
-    }
-
-    return plugin.client.hgetall(key).then(__success).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-
-    function __success(res) {
-      // Запрашиваемый ключ отсутвует
-      if (res === null) {
-        // запустим проверку на обновление по setCb
-        return callSetIfCallbackExists(app, { key, setCb, tags });
-      }
-
-      // Проверим актуальность тегов
-      return app.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: JSON.parse(res.tags) })).then(
-      // Если теги актуальны - вернем результат
-      () => JSON.parse(res.value, parseReviver),
-      // Иначе запустим проверку на обновление
-      () => callSetIfCallbackExists(app, { key, setCb, tags }));
-    }
-  };
+    // Проверим актуальность тегов
+    return request.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: JSON.parse(res.tags) })).then(
+    // Если теги актуальны - вернем результат
+    () => JSON.parse(res.value, parseReviver),
+    // Иначе запустим проверку на обновление
+    () => callSetIfCallbackExists(request, { key, setCb, tags }));
+  }
 };
 
 /**
@@ -105,10 +99,10 @@ exports.default = (app, plugin) => {
  */
 
 
-function callSetIfCallbackExists(app, _ref2) {
-  let key = _ref2.key,
-      setCb = _ref2.setCb,
-      tags = _ref2.tags;
+function callSetIfCallbackExists(app, _ref) {
+  let key = _ref.key,
+      setCb = _ref.setCb,
+      tags = _ref.tags;
 
   return new Promise((resolve, reject) => {
     if ((0, _lodash4.default)(setCb)) {

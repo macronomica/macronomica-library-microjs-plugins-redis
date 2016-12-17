@@ -27,18 +27,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (app, plugin, _ref) => {
   let onClose = _ref.onClose;
 
-  app.add(_pins.PIN_CACHE_GET, (0, _get2.default)(app, plugin));
-  app.add(_pins.PIN_CACHE_SET, (0, _set2.default)(app, plugin));
-  app.add(_pins.PIN_CACHE_HAS, (0, _has2.default)(app, plugin));
-  app.add(_pins.PIN_CACHE_DEL, (0, _del2.default)(app, plugin));
-
-  onClose(handlerOnClose);
+  app.add(_pins.PIN_CACHE_GET, (0, _get2.default)(plugin));
+  app.add(_pins.PIN_CACHE_SET, (0, _set2.default)(plugin));
+  app.add(_pins.PIN_CACHE_HAS, (0, _has2.default)(plugin));
+  app.add(_pins.PIN_CACHE_DEL, (0, _del2.default)(plugin));
 };
-
-function handlerOnClose(app) {
-  app.del(_pins.PIN_CACHE_DEL);
-  app.del(_pins.PIN_CACHE_HAS);
-  app.del(_pins.PIN_CACHE_SET);
-  app.del(_pins.PIN_CACHE_GET);
-}
 //# sourceMappingURL=index.js.map

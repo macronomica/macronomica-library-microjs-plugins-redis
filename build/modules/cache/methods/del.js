@@ -27,25 +27,20 @@ const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_N
 /**
  * Устанавливает значения ключа в кеш
  *
- * @param {app} app               Экземпляр библиотеки MicroJS
  * @param {object} plugin         Экземпляр плагина
  * @returns {function({key?: *, setCb?: *, tags?: *}): Promise}
  */
 
-exports.default = (app, plugin) => {
-  /**
-   * @param {string} key            Ключ кеша
-   *
-   * @returns {Promise<null|*|error>}
-   */
-  return (_ref) => {
-    let key = _ref.key;
+exports.default = plugin => request => {
+  const key = request.key;
 
-    if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
-      return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
-    }
+  if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
+    return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
+  }
 
-    return plugin.client.del(key).catch(err => Promise.reject((0, _internalError2.default)(app, err, ERROR_INFO)));
-  };
+  return plugin.client.del(key).catch(err => {
+    request.log.error(err);
+    return Promise.reject((0, _internalError2.default)(request, err, ERROR_INFO));
+  });
 };
 //# sourceMappingURL=del.js.map
