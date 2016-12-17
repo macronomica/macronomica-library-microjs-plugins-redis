@@ -4,9 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _constants = require('./../constants');
 
-exports.default = (app, plugin) => new Promise((resolve, reject) => {
+exports.default = (app, plugin, settings) => new Promise((resolve, reject) => {
   const client = plugin.client;
 
   if (!client || client.closing) {
@@ -15,7 +17,7 @@ exports.default = (app, plugin) => new Promise((resolve, reject) => {
 
   client.quit(() => {
     app.log.info(`Подключение к Redis разорвано`, {
-      id: plugin.id
+      plugin: _extends({ id: plugin.id }, settings)
     });
 
     app.emit(_constants.EVENTS_DISCONNECT, null);

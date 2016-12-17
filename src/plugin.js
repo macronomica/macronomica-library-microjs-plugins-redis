@@ -20,7 +20,7 @@ export default (settings = {}) => {
       app.del(PIN_CONNECTION);
       app.del(PIN_OPTIONS);
       app.del(PIN_PLUGIN);
-      return disconnect(app, plugin).then(result => plugin.client = result);
+      return disconnect(app, plugin, settings).then(result => plugin.client = result);
     });
 
     return connect(app, plugin, settings).then(result => plugin.client = result);

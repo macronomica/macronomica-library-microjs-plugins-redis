@@ -31,7 +31,7 @@ exports.default = function (app, plugin) {
 
     client.on("error", app.log.error).on("ready", error => {
       if (error) {
-        app.log.error(`Ошибка подключения к Redis:`, { id: plugin.id, error });
+        app.log.error(`Ошибка подключения к Redis:`, { plugin: _extends({ id: plugin.id }, settings), error });
         app.emit(_constants.EVENTS_CONNECT_ERROR, error);
         return reject(error);
       }
@@ -52,7 +52,7 @@ exports.default = function (app, plugin) {
         }
       });
 
-      app.log.info(`Создано подключение к Redis:`, { id: plugin.id, payload: _extends({}, settings) });
+      app.log.info(`Создано подключение к Redis:`, { plugin: _extends({ id: plugin.id }, settings) });
       app.emit(_constants.EVENTS_CONNECT, proxy);
       resolve(proxy);
     });

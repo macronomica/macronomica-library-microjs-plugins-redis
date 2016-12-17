@@ -13,7 +13,7 @@ export default (app, plugin, settings = {}) => new Promise((resolve, reject) => 
     .on("error", app.log.error)
     .on("ready", error => {
       if (error) {
-        app.log.error(`Ошибка подключения к Redis:`, { id: plugin.id, error });
+        app.log.error(`Ошибка подключения к Redis:`, { plugin: { id: plugin.id, ...settings }, error });
         app.emit(EVENTS_CONNECT_ERROR, error);
         return reject(error);
       }
@@ -29,7 +29,7 @@ export default (app, plugin, settings = {}) => new Promise((resolve, reject) => 
         }
       });
 
-      app.log.info(`Создано подключение к Redis:`, { id: plugin.id, payload: { ...settings } });
+      app.log.info(`Создано подключение к Redis:`, { plugin: { id: plugin.id, ...settings } });
       app.emit(EVENTS_CONNECT, proxy);
       resolve(proxy);
     });

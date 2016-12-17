@@ -1,6 +1,6 @@
 import { EVENTS_DISCONNECT } from './../constants';
 
-export default (app, plugin) => new Promise((resolve, reject) => {
+export default (app, plugin, settings) => new Promise((resolve, reject) => {
   const client = plugin.client;
   
   if (!client || client.closing) {
@@ -9,7 +9,7 @@ export default (app, plugin) => new Promise((resolve, reject) => {
   
   client.quit(() => {
     app.log.info(`Подключение к Redis разорвано`, {
-      id: plugin.id
+      plugin: { id: plugin.id, ...settings }
     });
 
     app.emit(EVENTS_DISCONNECT, null);

@@ -45,7 +45,7 @@ exports.default = function () {
       app.del(_pins.PIN_CONNECTION);
       app.del(_pins.PIN_OPTIONS);
       app.del(_pins.PIN_PLUGIN);
-      return (0, _disconnect2.default)(app, plugin).then(result => plugin.client = result);
+      return (0, _disconnect2.default)(app, plugin, settings).then(result => plugin.client = result);
     });
 
     return (0, _connect2.default)(app, plugin, settings).then(result => plugin.client = result);
