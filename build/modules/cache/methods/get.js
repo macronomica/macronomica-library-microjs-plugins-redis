@@ -38,6 +38,9 @@ var _tagsMustBeArrayOrUndefined2 = _interopRequireDefault(_tagsMustBeArrayOrUnde
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+const debug = require('debug')('microjs:plugins:redis:cache:get');
+
+
 const ERROR_INFO = { module: _constants.MODULE_NAME, action: _constants.ACTION_NAME_GET };
 
 /**
@@ -53,37 +56,46 @@ exports.default = plugin => request => {
         setCb = request.setCb,
         tags = request.tags;
 
+  debug('Вызван метод: "cache.get" с параметрами: %O', { key, setCb, tags });
 
+  debug(`Проверка свойства "key": !isString(key) || key === ''|| key === '*'`);
   if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
+    debug(['[error] Результаты:', `$1 => ${ !(0, _lodash2.default)(key) }`, `$2 => ${ key === '' }`, `$3 => ${ key === '*' }`].join('\n'));
     return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
   }
 
+  debug(`Проверка свойства "setCb": !isFunction(setCb) && setCb !== undefined`);
   if (!(0, _lodash4.default)(setCb) && setCb !== undefined) {
+    debug(['[error] Результаты:', `$1 => ${ !(0, _lodash4.default)(setCb) }`, `$2 => ${ setCb !== undefined }`].join('\n'));
     return Promise.reject((0, _setCbMustBeFunctionOrUndefined2.default)(ERROR_INFO));
   }
 
+  debug(`Проверка свойства "tags": !Array.isArray(tags) && tags !== undefined`);
   if (!Array.isArray(tags) && tags !== undefined) {
+    debug(['[error] Результаты:'`$1 => ${ !Array.isArray(tags) }`, `$2 => ${ tags !== undefined }`].join('\n'));
     return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
   }
 
   return plugin.client.hgetall(key).then(__success).catch(err => {
+    debug(`Поймали ошибку вызова метода "hgetall": `, err);
     request.log.error(err);
-    return Promise.reject((0, _internalError2.default)(request, err, ERROR_INFO));
+    throw (0, _internalError2.default)(request, err, ERROR_INFO);
   });
 
   function __success(res) {
-    // Запрашиваемый ключ отсутвует
     if (res === null) {
-      // запустим проверку на обновление по setCb
+      debug(`Запрашиваемый ключ "%s" отсутвует: %s === null`, key, res);
       return callSetIfCallbackExists(request, { key, setCb, tags });
     }
 
-    // Проверим актуальность тегов
-    return request.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: JSON.parse(res.tags) })).then(
-    // Если теги актуальны - вернем результат
-    () => JSON.parse(res.value, parseReviver),
-    // Иначе запустим проверку на обновление
-    () => callSetIfCallbackExists(request, { key, setCb, tags }));
+    debug(`Проверим актуальность тегов`);
+    return request.act(_extends({}, _pins2.PIN_TAGS_HAS, { tags: JSON.parse(res.tags) })).then(() => {
+      debug(`Теги актуальны - парсим и возвращаем результат`);
+      return JSON.parse(res.value, parseReviver);
+    }, () => {
+      debug(`Теги не актуальны`);
+      return callSetIfCallbackExists(request, { key, setCb, tags });
+    });
   }
 };
 
@@ -104,17 +116,34 @@ function callSetIfCallbackExists(app, _ref) {
       setCb = _ref.setCb,
       tags = _ref.tags;
 
+  debug('Начинаем выполнение проверки на обновление по setCb');
   return new Promise((resolve, reject) => {
-    if ((0, _lodash4.default)(setCb)) {
+
+    if (!!setCb) {
+      debug('Вызываем получение результата "setCb"');
       let promise = setCb(key);
 
       if (!promise || !('then' in promise && (0, _lodash4.default)(promise.then))) {
+        debug('Результат не Promise - обернем его в Promise');
         promise = Promise.resolve(promise);
       }
 
-      return promise.then(value => app.act(_extends({}, _pins.PIN_CACHE_SET, { key, value, tags })).then(() => value)).then(resolve, reject);
+      return promise.then(value => {
+        debug('Результат "setCb" получен, ' + 'вызываем установку нового значения для ключа "%s": %O', key, _extends({}, _pins.PIN_CACHE_SET, { key, value, tags }));
+        return app.act(_extends({}, _pins.PIN_CACHE_SET, { key, value, tags })).then(() => {
+          debug('Новое значение ключа "%s" утсановлено, возвращаем его', key);
+          return value;
+        }).catch(error => {
+          debug('[error] Установка нового значения ключа "%s" вернуло ошибку: %O', key, error);
+          throw error;
+        });
+      }).then(resolve).catch(error => {
+        debug('[error] Вызов метода "setCb" вернул ошибку: %O', error);
+        reject(error);
+      });
     }
 
+    debug('Метод "setCb" не передан, вернем null');
     return resolve(null);
   });
 }

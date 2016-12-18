@@ -10,9 +10,9 @@ var _redis = require('redis');
 
 var _redis2 = _interopRequireDefault(_redis);
 
-var _lodash = require('lodash.isfunction');
+var _proxy = require('./proxy');
 
-var _lodash2 = _interopRequireDefault(_lodash);
+var _proxy2 = _interopRequireDefault(_proxy);
 
 var _retryStrategy = require('./retry-strategy');
 
@@ -22,38 +22,38 @@ var _constants = require('./../constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+const debug = require('debug')('microjs:plugins:redis:connect');
+
 exports.default = function (app, plugin) {
   let settings = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  debug('Вызван метод "connect"');
   return new Promise((resolve, reject) => {
+    debug('Иницируем клиента с настройками: %O', settings);
     const client = _redis2.default.createClient(_extends({
       retry_strategy: _retryStrategy2.default
     }, settings));
 
-    client.on("error", app.log.error).on("ready", error => {
+    client.on("error", error => {
+      debug('Ошибка клиента: %O', error);
+      return app.log.error(error);
+    }).on("ready", error => {
       if (error) {
+        debug('При подключении клиента ошибка: %O', error);
         app.log.error(`Ошибка подключения к Redis:`, { plugin: _extends({ id: plugin.id }, settings), error });
         app.emit(_constants.EVENTS_CONNECT_ERROR, error);
         return reject(error);
       }
 
-      const proxy = new Proxy(client, {
-        get(target, property) {
-          if ((0, _lodash2.default)(target[property])) {
-            return function () {
-              for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
-                rest[_key] = arguments[_key];
-              }
+      const proxy = (0, _proxy2.default)(client);
 
-              return new Promise((resolve, reject) => target[property](...rest, (err, result) => err ? reject(err) : resolve(result)));
-            };
-          }
-
-          return target[property];
-        }
-      });
-
+      debug('Создано подключение к Redis, сообщаем об этом в консоль');
       app.log.info(`Создано подключение к Redis:`, { plugin: _extends({ id: plugin.id }, settings) });
+
+      debug('Вызываем событие: %s', _constants.EVENTS_CONNECT);
       app.emit(_constants.EVENTS_CONNECT, proxy);
+
+      debug('Вызываем resolve c proxy');
       resolve(proxy);
     });
   });

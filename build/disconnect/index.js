@@ -8,20 +8,31 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _constants = require('./../constants');
 
-exports.default = (app, plugin, settings) => new Promise((resolve, reject) => {
-  const client = plugin.client;
+const debug = require('debug')('microjs:plugins:redis:disconnect');
 
-  if (!client || client.closing) {
-    return resolve();
-  }
+exports.default = (app, plugin, settings) => {
+  debug('Вызван метод "disconnect"');
+  return new Promise((resolve, reject) => {
+    const client = plugin.client;
 
-  client.quit(() => {
-    app.log.info(`Подключение к Redis разорвано`, {
-      plugin: _extends({ id: plugin.id }, settings)
+    if (!client || client.closing) {
+      debug('Подключение к Redis было разорвано ранее, завершаем работу метода');
+      return resolve();
+    }
+
+    debug('Вызываем метод: client.quit');
+    client.quit(() => {
+      debug('Подключение к Redis было разорвано, сообщаем об этом в консоль');
+      app.log.info(`Подключение к Redis разорвано`, {
+        plugin: _extends({ id: plugin.id }, settings)
+      });
+
+      debug('Вызываем событие: %s', _constants.EVENTS_DISCONNECT);
+      app.emit(_constants.EVENTS_DISCONNECT, null);
+
+      debug('Завершаем работу метода');
+      resolve(null);
     });
-
-    app.emit(_constants.EVENTS_DISCONNECT, null);
-    resolve(null);
   });
-});
+};
 //# sourceMappingURL=index.js.map
