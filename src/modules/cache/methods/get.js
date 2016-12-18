@@ -30,6 +30,7 @@ export default (plugin) => (request) => {
       `$2 => ${ key === '' }`,
       `$3 => ${ key === '*' }`
     ].join('\n'));
+    request.log.warn(`Проверка свойства "key" провалилась`);
     return Promise.reject(propertyIsRequiredError({ ...ERROR_INFO, property: 'key' }));
   }
   
@@ -40,6 +41,7 @@ export default (plugin) => (request) => {
       `$1 => ${ !isFunction(setCb) }`,
       `$2 => ${ setCb !== undefined }`,
     ].join('\n'));
+    request.log.warn(`Проверка свойства "setCb" провалилась`);
     return Promise.reject(tagsMustBeFunctionOrUndefinedError(ERROR_INFO));
   }
   
@@ -50,6 +52,7 @@ export default (plugin) => (request) => {
       `$1 => ${ !Array.isArray(tags) }`,
       `$2 => ${ tags !== undefined }`,
     ].join('\n'));
+    request.log.warn(`Проверка свойства "tags" провалилась`);
     return Promise.reject(tagsMustBeArrayOrUndefinedError(ERROR_INFO));
   }
   
@@ -57,7 +60,7 @@ export default (plugin) => (request) => {
     .then(__success)
     .catch(err => {
       debug(`Поймали ошибку вызова метода "hgetall": `, err);
-      request.log.error(err);
+      request.log.error('Поймали ошибку вызова метода "hgetall"', err);
       throw internalError(request, err, ERROR_INFO);
     });
   
@@ -114,17 +117,19 @@ function callSetIfCallbackExists(app, { key, setCb, tags }) {
           return app
             .act({ ...PIN_CACHE_SET, key, value, tags })
             .then(() => {
-              debug('Новое значение ключа "%s" утсановлено, возвращаем его', key);
+              debug('Новое значение ключа "%s" установлено, возвращаем его: %O', key, value);
               return value;
             })
             .catch(error => {
               debug('[error] Установка нового значения ключа "%s" вернуло ошибку: %O', key, error);
-              throw error;
+              app.log.error(`Установка нового значения ключа "${ key }" вернуло ошибку`, error);
+              reject(error);
             });
         })
         .then(resolve)
         .catch(error => {
           debug('[error] Вызов метода "setCb" вернул ошибку: %O', error);
+          app.log.error('Вызов метода "setCb" вернул ошибку', error);
           reject(error);
         });
     }

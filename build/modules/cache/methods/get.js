@@ -61,24 +61,27 @@ exports.default = plugin => request => {
   debug(`Проверка свойства "key": !isString(key) || key === ''|| key === '*'`);
   if (!(0, _lodash2.default)(key) || key === '' || key === '*') {
     debug(['[error] Результаты:', `$1 => ${ !(0, _lodash2.default)(key) }`, `$2 => ${ key === '' }`, `$3 => ${ key === '*' }`].join('\n'));
+    request.log.warn(`Проверка свойства "key" провалилась`);
     return Promise.reject((0, _propertyIsRequiredError2.default)(_extends({}, ERROR_INFO, { property: 'key' })));
   }
 
   debug(`Проверка свойства "setCb": !isFunction(setCb) && setCb !== undefined`);
   if (!(0, _lodash4.default)(setCb) && setCb !== undefined) {
     debug(['[error] Результаты:', `$1 => ${ !(0, _lodash4.default)(setCb) }`, `$2 => ${ setCb !== undefined }`].join('\n'));
+    request.log.warn(`Проверка свойства "setCb" провалилась`);
     return Promise.reject((0, _setCbMustBeFunctionOrUndefined2.default)(ERROR_INFO));
   }
 
   debug(`Проверка свойства "tags": !Array.isArray(tags) && tags !== undefined`);
   if (!Array.isArray(tags) && tags !== undefined) {
     debug(['[error] Результаты:'`$1 => ${ !Array.isArray(tags) }`, `$2 => ${ tags !== undefined }`].join('\n'));
+    request.log.warn(`Проверка свойства "tags" провалилась`);
     return Promise.reject((0, _tagsMustBeArrayOrUndefined2.default)(ERROR_INFO));
   }
 
   return plugin.client.hgetall(key).then(__success).catch(err => {
     debug(`Поймали ошибку вызова метода "hgetall": `, err);
-    request.log.error(err);
+    request.log.error('Поймали ошибку вызова метода "hgetall"', err);
     throw (0, _internalError2.default)(request, err, ERROR_INFO);
   });
 
@@ -131,14 +134,16 @@ function callSetIfCallbackExists(app, _ref) {
       return promise.then(value => {
         debug('Результат "setCb" получен, ' + 'вызываем установку нового значения для ключа "%s": %O', key, _extends({}, _pins.PIN_CACHE_SET, { key, value, tags }));
         return app.act(_extends({}, _pins.PIN_CACHE_SET, { key, value, tags })).then(() => {
-          debug('Новое значение ключа "%s" утсановлено, возвращаем его', key);
+          debug('Новое значение ключа "%s" установлено, возвращаем его: %O', key, value);
           return value;
         }).catch(error => {
           debug('[error] Установка нового значения ключа "%s" вернуло ошибку: %O', key, error);
-          throw error;
+          app.log.error(`Установка нового значения ключа "${ key }" вернуло ошибку`, error);
+          reject(error);
         });
       }).then(resolve).catch(error => {
         debug('[error] Вызов метода "setCb" вернул ошибку: %O', error);
+        app.log.error('Вызов метода "setCb" вернул ошибку', error);
         reject(error);
       });
     }
